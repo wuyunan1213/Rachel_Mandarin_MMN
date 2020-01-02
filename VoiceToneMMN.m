@@ -59,7 +59,7 @@ ConditionOrder = randperm(4);
 ISI_length = 500; %Value in ms
 ISIcalc = int16(ISI_length/1000*Fs);
 ISI = zeros(1,ISIcalc);%ISI relative to sampling frequency
-
+trig_threshold = .005;
 %Build presentation order
 playlist=zeros(4,150);
 dev_perc = 0.20; dis_perc = 0.00; N = 150;
@@ -82,7 +82,7 @@ for i = ConditionOrder
                 trig = zeros(length(standard),1);
                 trig_len = (.001*Fs);
                 %Find amplitude - may need to change .005 value
-                trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
+                trig(find(standard>trig_threshold,1):(find(standard>trig_threshold,1)+trig_len-1))...
                     = trignum2scalar(MMNtrig)*ones(trig_len,1);
                 triggerbuffer = [triggerbuffer, trig];
             else%deviant

@@ -35,22 +35,7 @@ fprintf('Loading sound files. This may take a moment...')
 load('C:\Users\Lab User\Desktop\Experiments\MusicianShip\VoiceToneMaster.mat');
 fprintf('Done.\n')
 
-%Define stimulus categories
-F_fall = VoiceToneMaster.F_Fall{1,1:5};
-F_flat = VoiceToneMaster.F_Flat{1,1:5};
-M_fall = VoiceToneMaster.M_Fall{1,1:5};
-M_flat = VoiceToneMaster.M_Flat{1,1:5};
-
 #%Set insensity level for stimuli
-
-%Experiment 1
-%Condition 1: female falling, female flat
-%Condition 2: female flat, female falling
-%Condition 3: male falling, male flat
-%Condition 4: male flat, male falling
-
-%Randomize condition order
-ConditionOrder = randperm(4);
 
 %There will be 150 trials in each condition
 %120 standard presentations, 30 deviant presentations for each condition
@@ -66,122 +51,57 @@ dev_perc = 0.20; dis_perc = 0.00; N = 150;
 for idx = 1:4
     playlist(idx,:) = randomizePlayListRachel(dev_perc,dis_perc,N);
 end
+%Experiment 1
+%Condition 1: female falling, female flat
+%Condition 2: female flat, female falling
+%Condition 3: male falling, male flat
+%Condition 4: male flat, male falling
 
-for i = ConditionOrder
+%Define stimulus categories
+F_fall = VoiceToneMaster.F_Fall{1,1:5};
+F_flat = VoiceToneMaster.F_Flat{1,1:5};
+M_fall = VoiceToneMaster.M_Fall{1,1:5};
+M_flat = VoiceToneMaster.M_Flat{1,1:5};
+
+%list all possible conditions:
+%first row is condition1, second row is condition2 etc...
+conditions = {'F_Fall','F_Flat';
+              'F_Flat','F_Fall';
+              'M_Fall','M_Flat';
+              'M_Flat','M_Fall'};
+          
+%Randomize condition order
+ConditionOrder = randperm(4);
+
+%%%%%Still working on this
+
+for i = 1:ConditionOrder
     stimbuffer = [];
     triggerbuffer = [];
-    if i == 1
-        stand = F_fall;
-        dev = F_flat;
-        for j = 1:length(playlist{1,:})
-            if playlist{1,j} == 1 %standard
-                r = randperm(5,1);
-                standard = (F_fall{r}+ISI);
-                stimbuffer = [stimbuffer,standard];
-                MMNtrig = (100*playlist{1,j}+(i*10)+r);
-                trig = zeros(length(standard),1);
-                trig_len = (.001*Fs);
-                %Find amplitude - may need to change .005 value
-                trig(find(standard>trig_threshold,1):(find(standard>trig_threshold,1)+trig_len-1))...
-                    = trignum2scalar(MMNtrig)*ones(trig_len,1);
-                triggerbuffer = [triggerbuffer, trig];
-            else%deviant
-                r = randperm(5,1);
-                standard = (F_flat{r}+ISI);
-                stimbuffer = [stimbuffer,standard];
-                MMNtrig = (100*playlist{1,j}+(i*10)+r);
-                trig = zeros(length(standard),1);
-                trig_len = (.001*Fs);
-                %Find amplitude - may need to change .005 value
-                trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
-                    = trignum2scalar(MMNtrig)*ones(trig_len,1);
-                triggerbuffer = [triggerbuffer, trig];
-            end
-        end
-    elseif i == 2
-        stand = F_flat;
-        dev = F_fall;
-        for j = 1:length(playlist{1,:})
-            if playlist{1,j} == 1 %standard
-                r = randperm(5,1);
-                standard = (F_flat{r}+ISI);
-                stimbuffer = [stimbuffer,standard];
-                MMNtrig = (100*playlist{1,j}+(i*10)+r);
-                trig = zeros(length(standard),1);
-                trig_len = (.001*Fs);
-                %Find amplitude - may need to change .005 value
-                trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
-                    = trignum2scalar(MMNtrig)*ones(trig_len,1);
-                triggerbuffer = [triggerbuffer, trig];
-            else%deviant
-                r = randperm(5,1);
-                standard = (F_fall{r}+ISI);
-                stimbuffer = [stimbuffer,standard];
-                MMNtrig = (100*playlist{1,j}+(i*10)+r);
-                trig = zeros(length(standard),1);
-                trig_len = (.001*Fs);
-                %Find amplitude - may need to change .005 value
-                trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
-                    = trignum2scalar(MMNtrig)*ones(trig_len,1);
-                triggerbuffer = [triggerbuffer, trig];
-            end
-        end
-    elseif i == 3
-        stand = M_fall;
-        dev = M_flat;
-        for j = 1:length(playlist{1,:})
-            if playlist{1,j} == 1 %standard
-                r = randperm(5,1);
-                standard = (M_fall{r}+ISI);
-                stimbuffer = [stimbuffer,standard];
-                MMNtrig = (100*playlist{1,j}+(i*10)+r);
-                trig = zeros(length(standard),1);
-                trig_len = (.001*Fs);
-                %Find amplitude - may need to change .005 value
-                trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
-                    = trignum2scalar(MMNtrig)*ones(trig_len,1);
-                triggerbuffer = [triggerbuffer, trig];
-            else%deviant
-                r = randperm(5,1);
-                standard = (M_flat{r}+ISI);
-                stimbuffer = [stimbuffer,standard];
-                MMNtrig = (100*playlist{1,j}+(i*10)+r);
-                trig = zeros(length(standard),1);
-                trig_len = (.001*Fs);
-                %Find amplitude - may need to change .005 value
-                trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
-                    = trignum2scalar(MMNtrig)*ones(trig_len,1);
-                triggerbuffer = [triggerbuffer, trig];
-            end
-        end
-    else
-        stand = M_flat;
-        dev = M_fall;
-        for j = 1:length(playlist{1,:})
-            if playlist{1,j} == 1 %standard
-                r = randperm(5,1);
-                standard = (M_flat{r}+ISI);
-                stimbuffer = [stimbuffer,standard];
-                MMNtrig = (100*playlist{1,j}+(i*10)+r);
-                trig = zeros(length(standard),1);
-                trig_len = (.001*Fs);
-                %Find amplitude - may need to change .005 value
-                trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
-                    = trignum2scalar(MMNtrig)*ones(trig_len,1);
-                triggerbuffer = [triggerbuffer, trig];
-            else%deviant
-                r = randperm(5,1);
-                standard = (M_fall{r}+ISI);
-                stimbuffer = [stimbuffer,standard];
-                %Set trigger number 
-                MMNtrig = (100*playlist{1,j}+(i*10)+r);
-                trig = zeros(length(standard),1);
-                trig_len = (.001*Fs);
-                %Find amplitude - may need to change .005 value
-                trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
-                    = trignum2scalar(MMNtrig)*ones(trig_len,1);
-                triggerbuffer = [triggerbuffer, trig];
-            end
+    for j = 1:length(playlist(1,:))
+        if playlist(1,j) == 1 %standard
+            stim = getfield(VoiceToneMaster, conditions{i, playlist(1,j)});
+            standard = stim{randperm(5,1)}+ISI;%%randomly select one from a stimulus list of 5
+
+            stimbuffer = [stimbuffer,standard];
+            MMNtrig = (100*playlist(1,j)+(i*10)+r);
+            trig = zeros(length(standard),1);
+            trig_len = (.001*Fs);
+            %Find amplitude - may need to change .005 value
+            trig(find(standard>trig_threshold,1):(find(standard>trig_threshold,1)+trig_len-1))...
+                = trignum2scalar(MMNtrig)*ones(trig_len,1);
+            triggerbuffer = [triggerbuffer, trig];
+        else%deviant
+            r = randperm(5,1);
+            standard = (F_flat{r}+ISI);
+            stimbuffer = [stimbuffer,standard];
+            MMNtrig = (100*playlist(1,j)+(i*10)+r);
+            trig = zeros(length(standard),1);
+            trig_len = (.001*Fs);
+            %Find amplitude - may need to change .005 value
+            trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
+                = trignum2scalar(MMNtrig)*ones(trig_len,1);
+            triggerbuffer = [triggerbuffer, trig];
         end
     end
 end

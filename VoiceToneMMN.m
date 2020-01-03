@@ -44,7 +44,7 @@ fprintf('Done.\n')
 ISI_length = 500; %Value in ms
 ISIcalc = int16(ISI_length/1000*Fs);
 ISI = zeros(1,ISIcalc);%ISI relative to sampling frequency
-trig_threshold = .005;
+trig_threshold = .005; %%change this intensity level
 %Build presentation order
 playlist=zeros(4,150);
 dev_perc = 0.20; dis_perc = 0.00; N = 150;
@@ -56,56 +56,39 @@ end
 %Condition 2: female flat, female falling
 %Condition 3: male falling, male flat
 %Condition 4: male flat, male falling
-
-%Define stimulus categories
-F_fall = VoiceToneMaster.F_Fall{1,1:5};
-F_flat = VoiceToneMaster.F_Flat{1,1:5};
-M_fall = VoiceToneMaster.M_Fall{1,1:5};
-M_flat = VoiceToneMaster.M_Flat{1,1:5};
-
-%list all possible conditions:
-%first row is condition1, second row is condition2 etc...
-conditions = {'F_Fall','F_Flat';
-              'F_Flat','F_Fall';
-              'M_Fall','M_Flat';
-              'M_Flat','M_Fall'};
           
 %Randomize condition order
 ConditionOrder = randperm(4);
 
 %%%%%Still working on this
 
-for i = 1:ConditionOrder
+for i = 1:length(ConditionOrder)
+    cond = ConditionOrder(i);
     stimbuffer = [];
     triggerbuffer = [];
     for j = 1:length(playlist(1,:))
-        if playlist(1,j) == 1 %standard
-            stim = getfield(VoiceToneMaster, conditions{i, playlist(1,j)});
-            standard = stim{randperm(5,1)}+ISI;%%randomly select one from a stimulus list of 5
-
-            stimbuffer = [stimbuffer,standard];
-            MMNtrig = (100*playlist(1,j)+(i*10)+r);
-            trig = zeros(length(standard),1);
-            trig_len = (.001*Fs);
-            %Find amplitude - may need to change .005 value
-            trig(find(standard>trig_threshold,1):(find(standard>trig_threshold,1)+trig_len-1))...
-                = trignum2scalar(MMNtrig)*ones(trig_len,1);
-            triggerbuffer = [triggerbuffer, trig];
-        else%deviant
-            r = randperm(5,1);
-            standard = (F_flat{r}+ISI);
-            stimbuffer = [stimbuffer,standard];
-            MMNtrig = (100*playlist(1,j)+(i*10)+r);
-            trig = zeros(length(standard),1);
-            trig_len = (.001*Fs);
-            %Find amplitude - may need to change .005 value
-            trig(find(standard>.005,1):(find(standard>.005,1)+trig_len-1))...
-                = trignum2scalar(MMNtrig)*ones(trig_len,1);
-            triggerbuffer = [triggerbuffer, trig];
-        end
+        stimName = VoiceToneMaster.Conditions{cond, playlist(1,j)};
+        %%the line above finds the name of the sound to be presented
+        %%given the condition and playlist number
+        stim = VoiceToneMaster.Stimuli(strcmp(VoiceToneMaster.Stimuli(:,1), stimName),:);
+        %%The line above finds all names that match the stimulus name in the condition list 
+        %%i.e., all 5 stimuli that match the name
+        sound = stim(randperm(5,1), 5)+ISI;%%randomly select one from a stimulus list of 5
+        %%%The line above randomly selects a sound from the 5 sounds and
+        %%%add ISI to it
+        %%the code below adds trigger to the stimuli. Note that we don't
+        %%need an if statement to separate standard from deviant because
+        %%the playlist(1,j) number takes care of it. 
+        stimbuffer = [stimbuffer,sound];
+        MMNtrig = (100*playlist(1,j)+(i*10)+r);
+        trig = zeros(length(sound),1);
+        trig_len = (.001*Fs);
+        %Find amplitude - may need to change .005 value
+        trig(find(sound>trig_threshold,1):(find(sound>trig_threshold,1)+trig_len-1))...
+            = trignum2scalar(MMNtrig)*ones(trig_len,1);
+        triggerbuffer = [triggerbuffer, trig];
     end
 end
-
 
 %%Play the stuff; concatenate 2x sound channels and trigger using
 %%playrec('play',[stim,stim,trigger], stimchanlist=[1,2,14])

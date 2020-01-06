@@ -2,8 +2,7 @@
 %Code to collect MMN data for Rachel's Honor's Thesis
 %Created by MD on 12/8/2019
 
-%LAST EDIT on 1/5/2019 by Charles Wu at midnight with more changes for the
-%new branch
+%LAST EDIT on 1/5/2019 by Charles Wu for the second new branch
 
 %% INITIALIZATION
 close all;
